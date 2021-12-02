@@ -1,3 +1,5 @@
+module Day1
+
 parse_input(x::String)::Vector{Int} = parse.(Int, split(x, "\n"))
 
 read_input(fname::String)::Vector{Int} = open(fname, "r") do io
@@ -14,3 +16,5 @@ solution_2()::Int = read_input("inputs/1_2") |> sliding_windows |> diff .|> flat
 
 println(solution_1())
 println(solution_2())
+
+end
