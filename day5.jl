@@ -21,15 +21,18 @@ read_input(fname::String)::Vector{Matrix{Int}} = open(fname, "r") do io
     return parse_input(read(io, String))
 end
 
-get_points_on_line(line::Matrix{Int})::Vector{Vector{Int}} = begin
+get_points_on_line(line::Matrix{Int})::Tuple{Vector{Int}, Int} = begin
     diff = line[end,:] - line[begin,:]
-    diff_d = map(x->x == 0 ? 0 : x/abs(x), diff)
-    [line[begin,:] + i*diff_d for i in 0:max(abs.(diff)...)]
+    diff_d = sign.(diff)
+    (diff_d, max(abs.(diff)...))
 end
 
+is_horizontal_or_vertical(ls::Matrix{Int})::Bool = ls[begin,begin] == ls[end,begin] || ls[begin,end] == ls[end,end]
+
 mark_lines_on_point!(ocean_floor::Matrix{Int}, line::Matrix{Int}) = begin
-    for p in get_points_on_line(line)
-        ocean_floor[begin+p[begin], begin+p[end]] += 1
+    d_p, i_p = get_points_on_line(line)
+    for i in 0:i_p
+        ocean_floor[begin+line[begin, begin]+i*d_p[begin], begin+line[begin, end]+i*d_p[end]] += 1
     end
 end
 
@@ -50,7 +53,7 @@ end
 
 solution_1() = begin
     read_input("inputs/5_1") |> 
-    x->get_all_lines(x, ls -> ls[begin,begin] == ls[end,begin] || ls[begin,end] == ls[end,end]) |> 
+    x->get_all_lines(x, is_horizontal_or_vertical) |> 
     x->length(filter(y->y>1, x))
 end
 
@@ -60,7 +63,7 @@ solution_2() = begin
     x->length(filter(y->y>1, x))
 end
 
-println(solution_1())
-println(solution_2())
+println(@time solution_1())
+println(@time solution_2())
 
 end
